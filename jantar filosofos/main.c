@@ -1,13 +1,17 @@
+// Filipi de Luca Valim dos Santos 
+// RA 22216027-7
+// codigo retirado do link: reference: https://c-program-example.com/2012/02/c-program-to-solve-dining-philosophers-problem.html
 #include<stdio.h>
 #include<semaphore.h>
 #include<pthread.h>
+#include <sys/time.h> 
  
-#define N 5
+#define N 5 // qtd de filosofos
 #define THINKING 0
 #define HUNGRY 1
 #define EATING 2
 #define LEFT (ph_num+4)%N
-#define RIGHT (ph_num+1)%N
+#define RIGHT (ph_num+1)%N // para adicioanar mais um garfo
  
 sem_t mutex;
 sem_t S[N];
@@ -18,7 +22,19 @@ void put_fork(int);
 void test(int);
  
 int state[N];
-int phil_num[N]={0,1,2,3,4};
+int phil_num[N]={0,1,2,3,4}; // alterar a qtd de filosofos
+ 
+ 
+typedef unsigned long long timestamp_t;
+
+    static timestamp_t
+    get_timestamp ()
+    {
+      struct timeval now;
+      gettimeofday (&now, NULL);
+      return  now.tv_usec + (timestamp_t)now.tv_sec * 1000000;
+    }
+ 
  
 int main()
 {
@@ -45,7 +61,7 @@ void *philospher(void *num)
         sleep(1);
         take_fork(*i);
         sleep(0);
-        put_fork(*i);
+        put_fork(*i); // para dar deadlock
     }
 }
  
@@ -63,8 +79,10 @@ void take_fork(int ph_num)
  
 void test(int ph_num)
 {
+
     if (state[ph_num] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING)
     {
+    
         state[ph_num] = EATING;
         sleep(2);
         printf("\n");
@@ -72,7 +90,11 @@ void test(int ph_num)
         printf("\n");
         printf("Philosopher %d is Eatingn",ph_num+1);
         sem_post(&S[ph_num]);
+   
     }
+
+	
+
 }
  
 void put_fork(int ph_num)
